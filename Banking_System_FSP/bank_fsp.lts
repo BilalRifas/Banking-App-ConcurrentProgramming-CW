@@ -1,0 +1,27 @@
+const TRANSACTION_MIN_AMOUNT = 1
+const TRANSACTION_MAX_AMOUNT = 2
+
+range BANK_INITIAL_BALANCE = 5..5
+range BANK_FINAL_BALANCE = 3..7
+range BANK_TRANSACTION_AMOUNT = TRANSACTION_MIN_AMOUNT..TRANSACTION_MAX_AMOUNT
+
+CURRENT_BANK_ACCOUNT = (readBalance[initialBal:BANK_INITIAL_BALANCE] -> computeBalance[finalBal:BANK_FINAL_BALANCE] -> updateBalance[finalBal] -> finalizeBalance[finalBal] -> CURRENT_BANK_ACCOUNT) .
+
+STUDENT = (readBalance[balance:BANK_INITIAL_BALANCE] -> WITHDRAW[balance]),
+	WITHDRAW[balance:BANK_INITIAL_BALANCE] = (deductBalance[amount:BANK_TRANSACTION_AMOUNT] -> COMPUTE_BALANCE[balance-amount]),
+	COMPUTE_BALANCE[balance:BANK_FINAL_BALANCE] = (computeBalance[balance] -> BUY_SAMSUNG_PHONE[balance]),
+	BUY_SAMSUNG_PHONE[balance:BANK_FINAL_BALANCE] = (buySamsungPhone -> updateBalance[balance] -> finalizeBalance[balance] -> STUDENT).
+
+GRANDMOTHER = (readBalance[balance:BANK_INITIAL_BALANCE] -> DEPOSIT[balance]),
+	DEPOSIT[balance:BANK_INITIAL_BALANCE] = (addBalance[amount:BANK_TRANSACTION_AMOUNT] -> COMPUTE_BALANCE[balance+amount]),
+	COMPUTE_BALANCE[balance:BANK_FINAL_BALANCE] = (computeBalance[balance] -> SEND_BIRTHDAY_CARD[balance]),
+	SEND_BIRTHDAY_CARD[balance:BANK_FINAL_BALANCE]  = (updateBalance[balance] -> sendCard -> finalizeBalance[balance] -> GRANDMOTHER).
+
+LOAN_COMPANY = (readBalance[balance:BANK_INITIAL_BALANCE] -> DEPOSIT[balance]),
+	DEPOSIT[balance:BANK_INITIAL_BALANCE] = (addBalance[amount:BANK_TRANSACTION_AMOUNT] -> COMPUTE_BALANCE[balance+amount]),
+	COMPUTE_BALANCE[balance:BANK_FINAL_BALANCE] = (computeBalance[balance] -> updateBalance[balance] -> finalizeBalance[balance] -> LOAN_COMPANY) .
+
+UNIVERSITY = (readBalance[balance:BANK_INITIAL_BALANCE] -> deductBalance[amount:BANK_TRANSACTION_AMOUNT] -> COMPUTE_BALANCE[balance-amount]),
+	COMPUTE_BALANCE[balance:BANK_FINAL_BALANCE] = (computeBalance[balance] -> updateBalance[balance] -> finalizeBalance[balance] -> UNIVERSITY).
+
+|| BANKING_SYSTEM = (student : STUDENT || grandmother : GRANDMOTHER || loanCompany : LOAN_COMPANY || university : UNIVERSITY || {student, grandmother, loanCompany, university} :: CURRENT_BANK_ACCOUNT) .
